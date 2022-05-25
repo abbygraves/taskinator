@@ -1,6 +1,9 @@
 var formEl = document.querySelector("#task-form");
 var tasksToDoEl = document.querySelector("#tasks-to-do");
 var taskIdCounter = 0;
+var pageContentEl = document.querySelector("#page-content");
+
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
 function taskFormHandler(event) {
   event.preventDefault();
@@ -26,7 +29,7 @@ function taskFormHandler(event) {
   createTaskEl(taskDataObj);
 };
 
-
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
 function createTaskEl(taskDataObj) {
   // create list item
@@ -51,6 +54,8 @@ function createTaskEl(taskDataObj) {
   // increase task counter for next unique id
   taskIdCounter++;
 };
+
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
 function createTaskActions(taskId) {
   var actionContainerEl = document.createElement("div");
@@ -89,10 +94,39 @@ function createTaskActions(taskId) {
     // append to select
     statusSelectEl.appendChild(statusOptionEl);
   }
-
   return actionContainerEl;
 };
 
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
+function taskButtonHandler(event) {
+  console.log(event.target);
+
+  if(event.target.matches(".delete-btn")) {
+    // get the element's task id
+    var taskId = event.target.getAttribute("data-task-id");
+    deleteTask(taskId);
+  }
+};
+
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
+function deleteTask(taskId) {
+  var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+  taskSelected.remove();
+};
+
+
+
+
+
+
+
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
+
+
+
+pageContentEl.addEventListener("click", taskButtonHandler);
 formEl.addEventListener("submit", taskFormHandler);
 
