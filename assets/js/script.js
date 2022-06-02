@@ -2,6 +2,8 @@ var formEl = document.querySelector("#task-form");
 var tasksToDoEl = document.querySelector("#tasks-to-do");
 var taskIdCounter = 0;
 var pageContentEl = document.querySelector("#page-content");
+var tasksInProgressEl = document.querySelector("#tasks-in-progress");
+var tasksCompletedEl = document.querySelector("#tasks-completed");
 
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
@@ -19,14 +21,22 @@ function taskFormHandler(event) {
   // clear the "enter task name" and "pick a task type" field after submitting
   formEl.reset();
 
-  // package up data as an object
-  var taskDataObj = {
-    name: taskNameInput,
-    type: taskTypeInput
-  };
+  var isEdit = formEl.hasAttribute("data-task-id");
 
-  // send it as an argument to createTaskEl
-  createTaskEl(taskDataObj);
+  // has data attribute, so get task id and call function to complete edit process
+  if (isEdit) {
+    var taskId = formEl.getAttribute("data-task-id");
+    completeEditTask(taskNameInput, taskTypeInput, taskId);
+  }
+  // no data attribute, so create object as normal and pass to createTaskEl function
+  else {
+    var taskDataObj = {
+      name: taskNameInput,
+      type: taskTypeInput
+    };
+
+    createTaskEl(taskDataObj);
+  }
 };
 
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
@@ -100,11 +110,18 @@ function createTaskActions(taskId) {
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
 function taskButtonHandler(event) {
-  console.log(event.target);
+  // get target element from event
+  var targetEl = event.target;
 
-  if(event.target.matches(".delete-btn")) {
-    // get the element's task id
-    var taskId = event.target.getAttribute("data-task-id");
+  // edit button was clicked
+  if (targetEl.matches(".edit-btn")) {
+    var taskId = targetEl.getAttribute("data-task-id");
+    editTask(taskId);
+  }
+
+  // delete button was clicked
+  else if (targetEl.matches(".delete-btn")) {
+    var taskId = targetEl.getAttribute("data-task-id");
     deleteTask(taskId);
   }
 };
@@ -116,17 +133,69 @@ function deleteTask(taskId) {
   taskSelected.remove();
 };
 
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
+function editTask(taskId) {
+  console.log("editing task #" + taskId);
 
+  // get task list item element
+  var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
 
+  // get content from task name and type
+  var taskName = taskSelected.querySelector("h3.task-name").textContent;
+  document.querySelector("input[name='task-name']").value = taskName;
+  var taskType = taskSelected.querySelector("span.task-type").textContent;
+  document.querySelector("select[name='task-type']").value = taskType;
+  document.querySelector("#save-task").textContent = "Save Task";
+  formEl.setAttribute("data-task-id", taskId);
+};
+
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
+function completeEditTask(taskName, taskType, taskId) {
+  // find the matching task list item
+  var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+  // set new values
+  taskSelected.querySelector("h3.task-name").textContent = taskName;
+  taskSelected.querySelector("span.task-type").textContent = taskType;
+
+  alert("Task Updated!");
+  formEl.removeAttribute("data-task-id");
+  document.querySelector("#save-task").textContent = "Add Task";
+};
+
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
+function taskStatusChangeHandler(event) {
+  // get the task item's id
+  var taskId = event.target.getAttribute("data-task-id");
+
+  // get the currently selected options value and convert to lowercase
+  var statusValue = event.target.value.toLowerCase();
+
+  // find the parent task item element bsd on the id
+  var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+  if (statusValue === "to do") {
+    tasksToDoEl.appendChild(taskSelected);
+  }
+  else if (statusValue === "in progress") {
+    tasksInProgressEl.appendChild(taskSelected);
+  }
+  else if (statusValue === "completed") {
+    tasksCompletedEl.appendChild(taskSelected);
+  }
+};
 
 
 
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-
-
-
+// EVENT LISTENERS
 
 pageContentEl.addEventListener("click", taskButtonHandler);
 formEl.addEventListener("submit", taskFormHandler);
+pageContentEl.addEventListener("change", taskStatusChangeHandler);
+
+
 
