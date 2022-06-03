@@ -69,6 +69,7 @@ function createTaskEl(taskDataObj) {
   taskIdCounter++;
   console.log(taskDataObj);
   console.log(taskDataObj.status);
+  saveTasks();
 };
 
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
@@ -137,20 +138,21 @@ function taskButtonHandler(event) {
 function deleteTask(taskId) {
   var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
   taskSelected.remove();
-  
+
   // create new array to hold updated list of tasks
-var updatedTaskArr = [];
+  var updatedTaskArr = [];
 
-// loop through current tasks
-for (var i = 0; i < tasks.length; i++) {
-  // if tasks[i].id doesn't match the value of taskId, let's keep that task and push it into the new array
-  if (tasks[i].id !== parseInt(taskId)) {
-    updatedTaskArr.push(tasks[i]);
+  // loop through current tasks
+  for (var i = 0; i < tasks.length; i++) {
+    // if tasks[i].id doesn't match the value of taskId, let's keep that task and push it into the new array
+    if (tasks[i].id !== parseInt(taskId)) {
+      updatedTaskArr.push(tasks[i]);
+    }
   }
-}
 
-// reassign tasks array to be the same as updatedTaskArr
-tasks = updatedTaskArr;
+  // reassign tasks array to be the same as updatedTaskArr
+  tasks = updatedTaskArr;
+  saveTasks();
 };
 
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
@@ -191,6 +193,7 @@ function completeEditTask(taskName, taskType, taskId) {
   alert("Task Updated!");
   formEl.removeAttribute("data-task-id");
   document.querySelector("#save-task").textContent = "Add Task";
+  saveTasks();
 };
 
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
@@ -221,11 +224,23 @@ function taskStatusChangeHandler(event) {
       tasks[i].status = statusValue;
     }
   }
-  console.log(tasks);
+  saveTasks();
 };
 
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
 
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
+function loadTasks() {
+  // 1. Gets task items from localStorage
+  // 2. Converts tasks from the string format back into an array of objects
+  // 3. Iterates through a tasks array and creates task elements on the page from it
+  
+}
 
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // EVENT LISTENERS
